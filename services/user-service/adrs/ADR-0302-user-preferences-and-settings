@@ -1,0 +1,50 @@
+Title: User Preferences and Settings Management
+Status: Accepted
+Date: 2026-02-03
+
+Context:
+While the user-service manages core profile data, there is no standardized approach for user-specific preferences and configurable settings (notifications, UI options, subscription preferences). These settings are currently scattered across services, causing inconsistency and poor user experience. A dedicated module within the user-service is needed to centralize management.
+
+Decision:
+
+Preference Domain:
+
+The user-service owns all preferences and settings.
+
+Preferences include notification channels, UI themes, language, subscription options, and feature toggles.
+
+Storage & Access:
+
+Store preferences in a separate, indexed collection to optimize reads/writes.
+
+API endpoints allow services and clients to read or update preferences with role-based access control.
+
+Event-Driven Updates:
+
+Changes to preferences trigger events (UserPreferenceUpdated) for dependent services (notification, subscription, analytics).
+
+Security & Privacy:
+
+Enforce access controls to prevent unauthorized updates.
+
+Comply with privacy regulations for storing user-specific settings.
+
+Scalability & Performance:
+
+Optimize read-heavy operations with caching (Redis or similar).
+
+Batch updates where possible to reduce service load.
+
+Consequences:
+
+Centralizes all user-configurable settings, ensuring consistency across services.
+
+Enhances personalization and user experience.
+
+Provides auditability for preference changes and downstream synchronization.
+
+References:
+
+Domain-Driven Design (DDD) patterns
+
+User preference management best practices

@@ -1,0 +1,48 @@
+**Title:** Authentication & Authorization Strategy for API Gateway
+**Status:** Accepted
+**Date:** 2026-02-03
+### Context
+With multiple backend services exposed through the API Gateway, consistent enforcement of authentication and authorization is critical. Without a centralized approach, each service would need to implement its own security checks, leading to duplicated logic, inconsistent policies, and potential vulnerabilities.
+The platform supports multiple client types (web, mobile, third-party integrations), each requiring secure, token-based access with role-based permissions.
+### Decision
+Enforce **centralized authentication and authorization at the API Gateway**. Backend services will **trust the gateway** for identity validation and access control, reducing duplication and simplifying service logic.
+**Key components of the strategy:**
+1. **Authentication**
+   * API Gateway validates all incoming requests using **JWT or OAuth 2.0 tokens** issued by the platform identity provider.
+   * Token validation includes signature verification, expiration check, and audience claim verification.
+   * Gateway returns `401 Unauthorized` for invalid or missing tokens.
+2. **Authorization**
+   * Role-Based Access Control (RBAC) and/or Attribute-Based Access Control (ABAC) enforced at the gateway.
+   * Policies are defined declaratively and stored in a centralized policy store.
+   * Unauthorized access results in `403 Forbidden`.
+3. **Token propagation**
+   * Gateway forwards validated token information (user ID, roles, permissions) to backend services via HTTP headers.
+   * Backend services use this context for any service-level security checks without revalidating tokens.
+4. **Multi-tenant support**
+   * Tokens include tenant or organization claims.
+   * Access policies enforce tenant isolation automatically.
+5. **Audit and logging**
+   * All authentication and authorization decisions are logged for compliance and monitoring.
+   * Logs include user ID, requested resource, action, and decision outcome.
+### Consequences
+**Positive:**
+* Centralized security enforcement simplifies backend services
+* Consistent policy application across all services and clients
+* Simplified integration for new services with minimal security configuration
+* Enhanced observability and auditability of access events
+**Negative:**
+* API Gateway becomes a critical security component and potential attack target
+* Misconfigured policies at the gateway may block legitimate traffic
+* Slight increase in request latency due to token validation and policy checks
+### Implementation Notes
+* Integrate with identity provider (IdP) for token issuance and revocation
+* Use a caching layer for validated tokens to reduce performance impact
+* CI/CD pipeline validates policy changes before deployment
+* Support rotation of keys and token signing algorithms without downtime
+### Risks and Mitigations
+* **Risk:** Gateway compromise exposes authentication context
+  **Mitigation:** Harden the gateway, use network segmentation, and enforce least privilege
+* **Risk:** Policy misconfiguration
+  **Mitigation:** Enforce code review and automated policy validation
+* **Risk:** Token expiration causing failed requests
+  **Mitigation:** Use short-lived tokens with refresh tokens and proper error handling

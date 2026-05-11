@@ -22,7 +22,7 @@ ADRs colocated with their architectural scope
 
 Predictable, machine-discoverable layout
 
-Intended Consumers
+Intended Consumers // this is the new readme 
 
 AI agents
 
